@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SolarIO — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #080C14;
+  --bg2: #0D1520;
+  --bg3: #111D2E;
+  --bg4: #162236;
+  --border: rgba(255,255,255,0.06);
+  --border2: rgba(255,255,255,0.1);
+  --amber: #F59E0B;
+  --amber2: #FCD34D;
+  --amber-dim: rgba(245,158,11,0.12);
+  --amber-glow: rgba(245,158,11,0.25);
+  --teal: #2DD4BF;
+  --teal-dim: rgba(45,212,191,0.1);
+  --red: #F87171;
+  --red-dim: rgba(248,113,113,0.1);
+  --blue: #60A5FA;
+  --blue-dim: rgba(96,165,250,0.1);
+  --text: #F1F5F9;
+  --text2: #94A3B8;
+  --text3: #475569;
+  --sidebar-w: 220px;
+  --r: 14px;
+}
+html, body { height: 100%; }
+body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); display: flex; overflow: hidden; }
+
+/* SIDEBAR */
+.sidebar {
+  width: var(--sidebar-w); min-height: 100vh;
+  background: var(--bg2); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; padding: 28px 16px;
+  flex-shrink: 0;
+}
+.logo { display: flex; align-items: center; gap: 10px; padding: 0 8px; margin-bottom: 36px; }
+.logo-icon { width: 34px; height: 34px; background: var(--amber-dim); border: 1px solid rgba(245,158,11,0.3); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.logo-text { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+.logo-text span { color: var(--amber); }
+.nav-label { font-size: 0.6rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); padding: 0 8px; margin: 20px 0 8px; }
+.nav-label:first-of-type { margin-top: 0; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 9px 10px;
+  border-radius: 10px; cursor: pointer; color: var(--text2); font-size: 0.875rem;
+  font-weight: 500; transition: all 0.15s; border: 1px solid transparent; margin-bottom: 2px; user-select: none;
+}
+.nav-item:hover { background: var(--bg3); color: var(--text); }
+.nav-item.active { background: var(--amber-dim); color: var(--amber); border-color: rgba(245,158,11,0.2); }
+.nav-icon { font-size: 15px; width: 18px; text-align: center; }
+.sidebar-foot { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border); }
+.month-box { background: var(--bg3); border: 1px solid var(--border2); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; }
+.month-box label { display: block; font-size: 0.6rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text3); margin-bottom: 5px; }
+.month-box select { background: transparent; border: none; color: var(--amber); font-family: 'Outfit', sans-serif; font-size: 0.875rem; font-weight: 600; cursor: pointer; outline: none; width: 100%; }
+.month-box option { background: var(--bg2); color: var(--text); }
+.btn-export { width: 100%; background: var(--amber); color: #000; border: none; border-radius: 10px; padding: 10px; font-family: 'Outfit', sans-serif; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.btn-export:hover { background: var(--amber2); transform: translateY(-1px); }
+
+/* MAIN */
+.main { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 32px 28px; display: flex; flex-direction: column; gap: 24px; }
+.main::-webkit-scrollbar { width: 5px; }
+.main::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 99px; }
+
+/* PAGE HEADER */
+.ph { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.ph-title { font-size: 1.65rem; font-weight: 800; letter-spacing: -0.5px; line-height: 1.1; }
+.ph-title span { color: var(--amber); }
+.ph-sub { font-size: 0.82rem; color: var(--text2); margin-top: 4px; }
+.pill { display: flex; align-items: center; gap: 7px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 99px; padding: 6px 14px; font-size: 0.75rem; color: var(--text2); font-weight: 500; }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); animation: blink 2s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* SECTIONS */
+.section { display: none; animation: fi 0.2s ease; }
+.section.active { display: flex; flex-direction: column; gap: 24px; }
+@keyframes fi { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+
+/* SECTION LABEL */
+.sec-label { font-size: 0.62rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
+
+/* KPI GRID */
+.kpi-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+.kpi-grid-6 { grid-template-columns: repeat(6,1fr); }
+.kpi {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r);
+  padding: 20px; position: relative; overflow: hidden; transition: border-color 0.2s, transform 0.2s;
+}
+.kpi:hover { border-color: var(--border2); transform: translateY(-2px); }
+.kpi-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.kpi-lbl { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.5px; color: var(--text2); text-transform: uppercase; }
+.badge { font-size: 0.6rem; font-weight: 600; padding: 3px 8px; border-radius: 99px; letter-spacing: 0.5px; }
+.badge.a { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,158,11,0.2); }
+.badge.t { background: var(--teal-dim); color: var(--teal); border: 1px solid rgba(45,212,191,0.2); }
+.badge.b { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(96,165,250,0.2); }
+.badge.p { background: rgba(255,255,255,0.03); color: var(--text3); border: 1px dashed var(--border2); }
+.kpi-val { font-size: 1.9rem; font-weight: 800; letter-spacing: -1px; line-height: 1; }
+.kpi-val.a { color: var(--amber); }
+.kpi-val.t { color: var(--teal); }
+.kpi-val.b { color: var(--blue); }
+.kpi-val.w { color: var(--text); }
+.kpi-unit { font-size: 0.85rem; font-weight: 500; color: var(--text2); margin-left: 3px; }
+.kpi-sub { font-size: 0.7rem; color: var(--text3); margin-top: 6px; }
+.kpi-sub b { color: var(--text2); }
+.kpi-glow { position: absolute; bottom: -30px; right: -30px; width: 100px; height: 100px; border-radius: 50%; pointer-events: none; }
+.glow-a { background: radial-gradient(circle, rgba(245,158,11,0.12), transparent 70%); }
+.glow-t { background: radial-gradient(circle, rgba(45,212,191,0.1), transparent 70%); }
+.glow-b { background: radial-gradient(circle, rgba(96,165,250,0.1), transparent 70%); }
+
+/* ROW 2 */
+.row2 { display: grid; grid-template-columns: 1fr 360px; gap: 14px; }
+
+/* CARD */
+.card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); padding: 24px; }
+.card-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.card-title { font-size: 0.875rem; font-weight: 700; }
+.card-st { font-size: 0.7rem; color: var(--text3); margin-top: 2px; }
+.legend { display: flex; gap: 14px; font-size: 0.68rem; color: var(--text2); font-weight: 500; align-items: center; }
+.ldot { width: 8px; height: 8px; border-radius: 2px; display: inline-block; margin-right: 4px; }
+
+/* CHART */
+.chart-area { position: relative; height: 160px; display: flex; align-items: flex-end; gap: 3px; padding-bottom: 24px; overflow: hidden; }
+.ylines { position: absolute; top: 0; left: 0; right: 0; bottom: 24px; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
+.yline { border-top: 1px dashed rgba(255,255,255,0.04); }
+.bc { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; position: relative; cursor: default; }
+.bc:hover .b-real { filter: brightness(1.25); }
+.bc:hover .b-proj { filter: brightness(1.4); }
+.b-real { width: 100%; background: linear-gradient(180deg, var(--amber), #D97706); border-radius: 4px 4px 0 0; min-height: 3px; transition: height 0.35s cubic-bezier(.4,0,.2,1); }
+.b-proj { width: 100%; background: repeating-linear-gradient(45deg, rgba(245,158,11,0.15), rgba(245,158,11,0.15) 2px, transparent 2px, transparent 6px); border: 1px dashed rgba(245,158,11,0.3); border-bottom: none; border-radius: 4px 4px 0 0; min-height: 3px; }
+.b-empty { width: 100%; height: 3px; background: rgba(255,255,255,0.03); border-radius: 2px; }
+.b-lbl { position: absolute; bottom: 2px; font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; color: var(--text3); }
+.b-tip { position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: var(--bg4); border: 1px solid var(--border2); border-radius: 8px; padding: 5px 9px; font-size: 0.65rem; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.15s; z-index: 20; font-family: 'JetBrains Mono', monospace; color: var(--amber2); }
+.bc:hover .b-tip { opacity: 1; }
+
+/* ECO CARD */
+.eco-row { display: flex; align-items: center; justify-content: space-between; padding: 11px 0; border-bottom: 1px solid var(--border); }
+.eco-row:last-child { border-bottom: none; padding-bottom: 0; }
+.eco-row:first-child { padding-top: 0; }
+.eco-lbl { font-size: 0.78rem; color: var(--text2); font-weight: 500; }
+.eco-v { font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; font-weight: 500; }
+.eco-v.a { color: var(--amber); }
+.eco-v.t { color: var(--teal); }
+.eco-v.m { color: var(--text3); }
+.prog-wrap { margin-top: 16px; }
+.prog-hd { display: flex; justify-content: space-between; margin-bottom: 7px; }
+.prog-hd span { font-size: 0.7rem; color: var(--text2); font-weight: 500; }
+.prog-hd strong { font-size: 0.7rem; color: var(--amber); font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+.prog-track { height: 5px; background: var(--bg4); border-radius: 99px; overflow: hidden; }
+.prog-fill { height: 100%; background: linear-gradient(90deg, var(--amber), var(--teal)); border-radius: 99px; transition: width 0.6s cubic-bezier(.4,0,.2,1); }
+
+/* FORMS */
+.fc { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); padding: 24px; }
+.fc-title { font-size: 0.875rem; font-weight: 700; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+.fg { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 12px; align-items: end; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text3); }
+.field input { background: var(--bg3); border: 1px solid var(--border); border-radius: 9px; padding: 9px 12px; color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
+.field input:focus { border-color: var(--amber); box-shadow: 0 0 0 3px var(--amber-dim); }
+.btn-add { background: var(--amber); color: #000; border: none; border-radius: 9px; padding: 9px 18px; font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: all 0.15s; white-space: nowrap; align-self: flex-end; }
+.btn-add:hover { background: var(--amber2); }
+
+/* TABLE */
+.tw { overflow-x: auto; margin-top: 4px; }
+table { width: 100%; border-collapse: collapse; }
+thead th { font-size: 0.63rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--text3); padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+tbody td { padding: 10px 12px; font-size: 0.82rem; border-bottom: 1px solid rgba(255,255,255,0.03); color: var(--text); }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: rgba(255,255,255,0.02); }
+td.mono { font-family: 'JetBrains Mono', monospace; }
+td.a { color: var(--amber); font-family: 'JetBrains Mono', monospace; }
+td.t { color: var(--teal); font-family: 'JetBrains Mono', monospace; }
+.btn-del { background: var(--red-dim); border: 1px solid rgba(248,113,113,0.2); color: var(--red); border-radius: 6px; padding: 4px 10px; font-size: 0.7rem; cursor: pointer; font-family: 'Outfit', sans-serif; font-weight: 600; transition: background 0.15s; }
+.btn-del:hover { background: rgba(248,113,113,0.2); }
+.empty { text-align: center; padding: 40px; color: var(--text3); font-size: 0.8rem; }
+
+/* TOAST */
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 12px; padding: 12px 18px; font-size: 0.82rem; font-weight: 500; transform: translateY(80px); opacity: 0; transition: all 0.25s cubic-bezier(.4,0,.2,1); z-index: 999; max-width: 320px; }
+.toast.show { transform: none; opacity: 1; }
+.toast.ok { border-color: rgba(45,212,191,0.3); color: var(--teal); }
+.toast.err { border-color: rgba(248,113,113,0.3); color: var(--red); }
+
+@media(max-width:900px) { .kpi-grid { grid-template-columns: repeat(2,1fr); } .kpi-grid-6 { grid-template-columns: repeat(3,1fr); } .row2 { grid-template-columns: 1fr; } }
+@media(max-width:600px) { .kpi-grid-6 { grid-template-columns: repeat(2,1fr); } }
+@media(max-width:640px) {
+  body { flex-direction: column; overflow: auto; }
+  .sidebar { width: 100%; min-height: auto; flex-direction: row; flex-wrap: wrap; padding: 12px; gap: 4px; }
+  .sidebar-foot { display: none; }
+  .logo { margin-bottom: 0; }
+  .nav-label { display: none; }
+  .nav-item { padding: 6px 10px; font-size: 0.78rem; }
+  .main { padding: 16px; }
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-icon">☀️</div>
+    <div class="logo-text">Solar<span>IO</span></div>
+  </div>
+  <div class="nav-label">Menu</div>
+  <div class="nav-item active" onclick="navTo('dashboard',this)"><span class="nav-icon">◈</span> Dashboard</div>
+  <div class="nav-item" onclick="navTo('geracao',this)"><span class="nav-icon">⚡</span> Geração</div>
+  <div class="nav-item" onclick="navTo('conta',this)"><span class="nav-icon">📄</span> Conta</div>
+  <div class="nav-item" onclick="navTo('historico',this)"><span class="nav-icon">📅</span> Histórico</div>
+
+  <div class="sidebar-foot">
+    <div class="month-box">
+      <label>Mês ativo</label>
+      <select id="month-select" onchange="render()"></select>
+    </div>
+    <button class="btn-export" onclick="exportar()">⬇ Salvar arquivo</button>
+  </div>
+</aside>
+
+<main class="main">
+
+  <!-- DASHBOARD -->
+  <div id="sec-dashboard" class="section active">
+    <div class="ph">
+      <div>
+        <div class="ph-title">Visão <span>Geral</span></div>
+        <div class="ph-sub" id="ph-sub">—</div>
+      </div>
+      <div class="pill"><div class="dot"></div><span id="pill-txt">—</span></div>
+    </div>
+    <div>
+      <div class="sec-label">⚡ Geração Solar</div>
+      <div class="kpi-grid" id="kpi-ger"></div>
+    </div>
+    <div class="row2">
+      <div class="card">
+        <div class="card-hd">
+          <div><div class="card-title">Geração Diária</div><div class="card-st" id="chart-st">—</div></div>
+          <div class="legend">
+            <div><span class="ldot" style="background:var(--amber)"></span>Real</div>
+            <div><span class="ldot" style="background:rgba(245,158,11,0.3);border:1px dashed rgba(245,158,11,0.5)"></span>Proj.</div>
+          </div>
+        </div>
+        <div class="chart-area" id="chart-area"></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div><div class="card-title">Economia & Conta</div><div class="card-st">Resumo do mês</div></div></div>
+        <div class="eco-row"><span class="eco-lbl">Conta original</span><span class="eco-v m" id="e-conta">—</span></div>
+        <div class="eco-row"><span class="eco-lbl">Economia solar (atual)</span><span class="eco-v t" id="e-eco">—</span></div>
+        <div class="eco-row"><span class="eco-lbl">Com desconto (atual)</span><span class="eco-v a" id="e-desc">—</span></div>
+        <div class="eco-row"><span class="eco-lbl" style="color:var(--blue)">Projeção da conta</span><span class="eco-v" style="color:var(--blue)" id="e-proj">—</span></div>
+        <div class="eco-row" style="border:none"><span class="eco-lbl">Consumo médio/dia</span><span class="eco-v m" id="e-avg">—</span></div>
+        <div class="prog-wrap" id="prog-wrap" style="display:none">
+          <div class="prog-hd"><span>Cobertura Solar</span><strong id="prog-pct">—</strong></div>
+          <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="sec-label">🏠 Consumo & Projeção da Conta</div>
+      <div class="kpi-grid kpi-grid-6" id="kpi-con"></div>
+    </div>
+  </div>
+
+  <!-- GERAÇÃO -->
+  <div id="sec-geracao" class="section">
+    <div class="ph"><div><div class="ph-title">⚡ <span>Geração</span></div><div class="ph-sub">Registro diário de produção</div></div></div>
+    <div class="fc">
+      <div class="fc-title">Novo registro</div>
+      <div class="fg">
+        <div class="field"><label>Data</label><input type="date" id="gen-data"></div>
+        <div class="field"><label>kWh gerado</label><input type="number" id="gen-kwh" placeholder="8.5" step="0.01" min="0"></div>
+        <button class="btn-add" onclick="addGeracao()">+ Registrar</button>
+      </div>
+    </div>
+    <div class="fc">
+      <div class="fc-title">Registros do mês</div>
+      <div class="tw"><table><thead><tr><th>Data</th><th>kWh</th><th>Valor (R$)</th><th></th></tr></thead><tbody id="tbl-ger"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- CONTA -->
+  <div id="sec-conta" class="section">
+    <div class="ph"><div><div class="ph-title">📄 <span>Conta</span></div><div class="ph-sub">Dados da fatura de energia</div></div></div>
+    <div class="fc">
+      <div class="fc-title">Dados da fatura</div>
+      <div class="fg">
+        <div class="field"><label>Tarifa (R$/kWh)</label><input type="number" id="f-tarifa" placeholder="0.90" step="0.001" min="0"></div>
+        <div class="field"><label>Consumo (kWh)</label><input type="number" id="f-kwh" placeholder="350" step="0.1" min="0"></div>
+        <div class="field"><label>Valor da conta (R$)</label><input type="number" id="f-valor" placeholder="315.00" step="0.01" min="0"></div>
+        <button class="btn-add" onclick="saveConta()">Salvar</button>
+      </div>
+    </div>
+    <div class="fc" id="resumo-card" style="display:none">
+      <div class="fc-title">💰 Resumo de economia</div>
+      <div id="resumo-body"></div>
+    </div>
+  </div>
+
+  <!-- HISTÓRICO -->
+  <div id="sec-historico" class="section">
+    <div class="ph"><div><div class="ph-title">📅 <span>Histórico</span></div><div class="ph-sub">Todos os meses registrados</div></div></div>
+    <div class="fc">
+      <div class="tw"><table>
+        <thead><tr><th>Mês</th><th>Gerado (kWh)</th><th>Valor Gerado</th><th>Consumo (kWh)</th><th>Conta</th><th>Economia</th><th>Cobertura</th></tr></thead>
+        <tbody id="tbl-hist"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let D = { meses: {} };
+function key() { return document.getElementById('month-select').value; }
+function mes(k) {
+  if (!k) k = key();
+  if (!D.meses[k]) D.meses[k] = { geracao: [], tarifa: 0.90, consumoKwh: 0, contaValor: 0 };
+  return D.meses[k];
+}
+
+function initMeses() {
+  const sel = document.getElementById('month-select');
+  sel.innerHTML = '';
+  const hoje = new Date();
+  const nm = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  for (let i = -5; i <= 1; i++) {
+    const d = new Date(hoje.getFullYear(), hoje.getMonth() + i, 1);
+    const k = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const o = document.createElement('option');
+    o.value = k; o.textContent = `${nm[d.getMonth()]} ${d.getFullYear()}`;
+    if (i === 0) o.selected = true;
+    sel.appendChild(o);
+  }
+}
+
+function navTo(tab, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('sec-' + tab).classList.add('active');
+  el.classList.add('active');
+  render();
+}
+
+function addGeracao() {
+  const data = document.getElementById('gen-data').value;
+  const kwh = parseFloat(document.getElementById('gen-kwh').value);
+  if (!data || isNaN(kwh) || kwh < 0) { toast('Preencha data e kWh.', 'err'); return; }
+  if (data.slice(0,7) !== key()) { toast('Data fora do mês selecionado.', 'err'); return; }
+  const m = mes();
+  const i = m.geracao.findIndex(g => g.data === data);
+  if (i >= 0) m.geracao[i].kwh = kwh; else m.geracao.push({ data, kwh });
+  m.geracao.sort((a,b) => a.data.localeCompare(b.data));
+  document.getElementById('gen-kwh').value = '';
+  salvarLocal();
+  toast(`✓ ${kwh} kWh em ${fD(data)} registrado!`, 'ok');
+  render();
+}
+
+function delGer(d) { mes().geracao = mes().geracao.filter(g => g.data !== d); salvarLocal(); render(); }
+
+function saveConta() {
+  const t = parseFloat(document.getElementById('f-tarifa').value);
+  const k = parseFloat(document.getElementById('f-kwh').value);
+  const v = parseFloat(document.getElementById('f-valor').value);
+  if (isNaN(t) || t <= 0) { toast('Informe a tarifa.', 'err'); return; }
+  const m = mes();
+  m.tarifa = t;
+  if (!isNaN(k) && k > 0) m.consumoKwh = k;
+  if (!isNaN(v) && v > 0) m.contaValor = v;
+  salvarLocal();
+  toast('✓ Conta salva!', 'ok');
+  render();
+}
+
+function fD(d) { const [y,mo,da] = d.split('-'); return `${da}/${mo}/${y}`; }
+function n(v, d=2) { return isNaN(v)||v===undefined ? '—' : (+v).toFixed(d).replace('.', ','); }
+function R(v) { return (!v||isNaN(v)) ? '—' : `R$ ${n(v)}`; }
+function diasMes(k) { const [y,m] = k.split('-').map(Number); return new Date(y,m,0).getDate(); }
+function diaAtual(k) {
+  const h = new Date(); const [y,m] = k.split('-').map(Number);
+  return (h.getFullYear()===y && h.getMonth()+1===m) ? h.getDate() : diasMes(k);
+}
+function nomeMes(k) {
+  const nm=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const [y,m] = k.split('-').map(Number); return `${nm[m-1]} ${y}`;
+}
+function toast(msg, tipo) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'toast ' + tipo + ' show';
+  setTimeout(() => el.className = 'toast', 3000);
+}
+
+function render() {
+  const k = key(); const m = mes(k);
+  const tarifa = m.tarifa || 0.90;
+  const td = diasMes(k); const da = diaAtual(k);
+  const tg = m.geracao.reduce((s,g) => s+g.kwh, 0);
+  const nd = m.geracao.length;
+  const media = nd > 0 ? tg / nd : 0;
+  const proj = media * td;
+  const vg = tg * tarifa; const vp = proj * tarifa;
+  const con = m.consumoKwh || 0; const conta = m.contaValor || 0;
+  const mcd = con > 0 ? con / td : 0;
+  const eco = Math.min(tg, con) * tarifa;
+  const cob = con > 0 ? Math.min((tg/con)*100, 100) : 0;
+  const cd = Math.max(0, conta - eco);
+  // Projeção da conta: usa consumo médio histórico ou consumo informado
+  const ecoProj = Math.min(proj, con) * tarifa; // economia projetada com geração projetada
+  const contaProj = con > 0 ? con * tarifa : 0; // custo bruto projetado do consumo
+  const contaProjComDesc = Math.max(0, contaProj - ecoProj); // conta projetada com desconto solar
+  const cobProj = con > 0 ? Math.min((proj/con)*100, 100) : 0;
+
+  document.getElementById('ph-sub').textContent = `${nomeMes(k)}  •  Tarifa R$ ${n(tarifa)}/kWh  •  ${nd} dia${nd!==1?'s':''} registrado${nd!==1?'s':''}`;
+  document.getElementById('pill-txt').textContent = nd > 0 ? `${n(tg)} kWh gerados` : 'Sem dados';
+
+  // KPI Geração
+  document.getElementById('kpi-ger').innerHTML =
+    kpi('a','glow-a','⚡','Total Gerado', n(tg), 'kWh', `Média ${n(media)} kWh/dia`, 'REAL','a') +
+    kpi('b','glow-b','📈','Projeção Mês', n(proj), 'kWh', `Base: ${nd} dias reg.`, 'PROJ','p') +
+    kpi('a','glow-a','💵','Valor Gerado', R(vg), '', `Tarifa R$ ${n(tarifa)}/kWh`, 'REAL','a') +
+    kpi('b','glow-b','🔮','Projeção Valor', R(vp), '', `Até ${td}/${k.split('-')[1]}`, 'PROJ','p');
+
+  // KPI Consumo
+  document.getElementById('kpi-con').innerHTML =
+    kpi('w','','🏠','Consumo Mensal', con>0?n(con):'—', con>0?'kWh':'', con>0?`Média ${n(mcd)} kWh/dia`:'Insira a conta', '','') +
+    kpi('w','','💸','Conta Original', R(conta), '', con>0?`Média ${R(conta/td)}/dia`:'Insira a conta', '','') +
+    kpi('t','glow-t','🌿','Economia Solar', R(eco), '', cob>0?`${n(cob,1)}% coberto`:'Insira consumo', 'REAL','t') +
+    kpi('t','glow-t','✅','Conta c/ Desconto', cd>0?R(cd):'—', '', cd>0?`Desconto de ${R(eco)}`:'Insira os dados', 'REAL','t') +
+    kpi('b','glow-b','🔮','Projeção Economia', ecoProj>0?R(ecoProj):'—', '', cobProj>0?`${n(cobProj,1)}% cobertura proj.`:'Insira consumo', 'PROJ','p') +
+    kpi('b','glow-b','🧾','Projeção da Conta', contaProjComDesc>0?R(contaProjComDesc):'—', '', contaProj>0?`Sem solar seria ${R(contaProj)}`:'Insira consumo', 'PROJ','p');
+
+  // Chart
+  document.getElementById('chart-st').textContent = `${nomeMes(k)} • ${td} dias`;
+  renderChart(k, m, td, media);
+
+  // Eco sidebar
+  document.getElementById('e-conta').textContent = R(conta);
+  document.getElementById('e-eco').textContent = eco > 0 ? `− ${R(eco)}` : '—';
+  document.getElementById('e-desc').textContent = cd > 0 ? R(cd) : '—';
+  document.getElementById('e-proj').textContent = contaProjComDesc > 0 ? R(contaProjComDesc) : con > 0 ? 'Sem geração proj.' : '—';
+  document.getElementById('e-avg').textContent = mcd > 0 ? `${n(mcd)} kWh / ${R(mcd*tarifa)}` : '—';
+  if (cob > 0) {
+    document.getElementById('prog-wrap').style.display = 'block';
+    document.getElementById('prog-pct').textContent = n(cob,1) + '%';
+    setTimeout(() => { document.getElementById('prog-fill').style.width = Math.min(cob,100)+'%'; }, 50);
+  } else { document.getElementById('prog-wrap').style.display = 'none'; }
+
+  // Tabela geração
+  document.getElementById('tbl-ger').innerHTML = m.geracao.length === 0
+    ? `<tr><td colspan="4"><div class="empty">Sem registros. Use o formulário acima.</div></td></tr>`
+    : m.geracao.map(g => `<tr>
+        <td class="mono">${fD(g.data)}</td>
+        <td class="a">${n(g.kwh)} kWh</td>
+        <td class="t">${R(g.kwh*tarifa)}</td>
+        <td><button class="btn-del" onclick="delGer('${g.data}')">Remover</button></td>
+      </tr>`).join('');
+
+  // Form conta
+  if (m.tarifa) document.getElementById('f-tarifa').value = m.tarifa;
+  if (m.consumoKwh) document.getElementById('f-kwh').value = m.consumoKwh;
+  if (m.contaValor) document.getElementById('f-valor').value = m.contaValor;
+
+  // Resumo conta
+  if (con > 0 && tg > 0) {
+    document.getElementById('resumo-card').style.display = 'block';
+    document.getElementById('resumo-body').innerHTML = `
+      <div class="eco-row"><span class="eco-lbl">Conta original</span><span class="eco-v m">${R(conta)}</span></div>
+      <div class="eco-row"><span class="eco-lbl">Geração solar</span><span class="eco-v a">${n(tg)} kWh = ${R(vg)}</span></div>
+      <div class="eco-row"><span class="eco-lbl">Desconto aplicado</span><span class="eco-v t">− ${R(eco)}</span></div>
+      <div class="eco-row"><span class="eco-lbl">Cobertura solar</span><span class="eco-v a">${n(cob,1)}%</span></div>
+      <div class="eco-row" style="border:none;padding-bottom:0"><span class="eco-lbl" style="font-weight:700;color:var(--text)">Conta com desconto</span><span class="eco-v a" style="font-size:1.1rem">${R(cd)}</span></div>
+      <div class="prog-wrap"><div class="prog-hd"><span>Cobertura Solar</span><strong>${n(cob,1)}%</strong></div><div class="prog-track"><div class="prog-fill" style="width:${Math.min(cob,100)}%"></div></div></div>`;
+  } else { document.getElementById('resumo-card').style.display = 'none'; }
+
+  // Histórico
+  const ks = Object.keys(D.meses).sort().reverse();
+  document.getElementById('tbl-hist').innerHTML = ks.length === 0
+    ? `<tr><td colspan="7"><div class="empty">Nenhum dado ainda.</div></td></tr>`
+    : ks.map(mk => {
+        const mm = D.meses[mk]; const tt = mm.tarifa||0.90;
+        const tgg = mm.geracao.reduce((s,g)=>s+g.kwh,0);
+        const ec = Math.min(tgg,mm.consumoKwh)*tt;
+        const cb = mm.consumoKwh>0?Math.min((tgg/mm.consumoKwh)*100,100):0;
+        return `<tr>
+          <td class="a">${nomeMes(mk)}</td>
+          <td class="mono">${n(tgg)} kWh</td>
+          <td class="t">${R(tgg*tt)}</td>
+          <td class="mono">${mm.consumoKwh>0?n(mm.consumoKwh)+' kWh':'—'}</td>
+          <td class="mono">${mm.contaValor>0?R(mm.contaValor):'—'}</td>
+          <td class="t">${ec>0?R(ec):'—'}</td>
+          <td class="mono">${cb>0?n(cb,1)+'%':'—'}</td>
+        </tr>`;
+      }).join('');
+}
+
+function kpi(cor, glow, icon, lbl, val, unit, sub, badge, bc) {
+  const valHtml = unit
+    ? `<span class="kpi-val ${cor}">${val}</span><span class="kpi-unit">${unit}</span>`
+    : `<span class="kpi-val ${cor}" style="font-size:1.55rem">${val}</span>`;
+  const bHtml = badge ? `<div class="badge ${bc||cor}">${badge}</div>` : '';
+  return `<div class="kpi">
+    <div class="kpi-top"><div class="kpi-lbl">${lbl}</div>${bHtml}</div>
+    <div>${valHtml}</div>
+    <div class="kpi-sub">${sub}</div>
+    ${glow?`<div class="kpi-glow ${glow}"></div>`:''}
+  </div>`;
+}
+
+function renderChart(k, m, td, media) {
+  const area = document.getElementById('chart-area');
+  const maxV = Math.max(...m.geracao.map(g=>g.kwh), media, 0.1);
+  const H = 132;
+  const hoje = new Date();
+  let html = '<div class="ylines"><div class="yline"></div><div class="yline"></div><div class="yline"></div><div class="yline"></div></div>';
+  for (let d = 1; d <= td; d++) {
+    const ds = `${k}-${String(d).padStart(2,'0')}`;
+    const reg = m.geracao.find(g => g.data === ds);
+    const fut = new Date(ds+'T12:00:00') > hoje;
+    let bar = '', tip = `Dia ${d}: sem dado`;
+    if (reg) {
+      const h = Math.max((reg.kwh/maxV)*H, 3);
+      tip = `Dia ${d}: ${n(reg.kwh)} kWh`;
+      bar = `<div class="b-real" style="height:${h}px"></div>`;
+    } else if (fut && media > 0) {
+      const h = Math.max((media/maxV)*H, 3);
+      tip = `Dia ${d}: ~${n(media)} kWh`;
+      bar = `<div class="b-proj" style="height:${h}px"></div>`;
+    } else {
+      bar = `<div class="b-empty"></div>`;
+    }
+    const lbl = (d===1||d%5===0||d===td) ? d : '';
+    html += `<div class="bc">${bar}<div class="b-tip">${tip}</div><div class="b-lbl">${lbl}</div></div>`;
+  }
+  area.innerHTML = html;
+}
+
+// ─── PERSISTÊNCIA: localStorage é a fonte principal de dados ───
+// O arquivo HTML em si nunca é modificado — dados vivem no localStorage do navegador.
+// O botão "Exportar" gera um arquivo separado só para backup/portabilidade.
+
+function salvarLocal() {
+  try {
+    localStorage.setItem('solar_io_v1', JSON.stringify(D));
+  } catch(e) {
+    console.warn('Erro ao salvar localStorage:', e);
+  }
+}
+
+function carregarLocal() {
+  try {
+    const raw = localStorage.getItem('solar_io_v1');
+    if (!raw) return false;
+    const parsed = JSON.parse(raw);
+    if (parsed && parsed.meses && Object.keys(parsed.meses).length > 0) {
+      D = parsed;
+      return true;
+    }
+  } catch(e) {}
+  return false;
+}
+
+function exportar() {
+  // Salva no localStorage primeiro
+  salvarLocal();
+
+  // Gera arquivo de backup lendo o fonte original via fetch
+  // Isso NUNCA toca no DOM atual — zero risco de quebrar a página
+  const dadosJSON = JSON.stringify(D);
+
+  // Lê o HTML do arquivo atual via XMLHttpRequest (lê o arquivo em disco, não o DOM)
+  const xhr = new XMLHttpRequest();
+  xhr.open('GET', window.location.href, true);
+  xhr.onload = function() {
+    if (xhr.status !== 200 && xhr.status !== 0) {
+      // Fallback: gera arquivo só com os dados como JSON separado
+      exportarJSON();
+      return;
+    }
+    let html = xhr.responseText;
+    // Injeta dados no arquivo lido do disco
+    const marker = '/* __BACKUP_DATA__ */';
+    const inject = `/* __BACKUP_DATA__ */
+try{const _bd=${dadosJSON};if(_bd&&_bd.meses)D=_bd;}catch(e){}
+`;
+    if (html.includes(marker)) {
+      html = html.replace(/\/\* __BACKUP_DATA__ \*\/[\s\S]*?\n(?=\/\/ ─── PERSISTÊNCIA)/m, inject);
+    } else {
+      html = html.replace('// ─── PERSISTÊNCIA', inject + '\n// ─── PERSISTÊNCIA');
+    }
+    baixar(html, 'solar_backup.html', 'text/html');
+    toast('✓ Backup salvo! Este arquivo pode ser aberto em qualquer navegador com seus dados.', 'ok');
+  };
+  xhr.onerror = function() { exportarJSON(); };
+  xhr.send();
+}
+
+function exportarJSON() {
+  // Fallback: exporta só os dados como JSON
+  baixar(JSON.stringify(D, null, 2), 'solar_dados.json', 'application/json');
+  toast('✓ Dados exportados como JSON (backup).', 'ok');
+}
+
+function baixar(conteudo, nome, tipo) {
+  const blob = new Blob([conteudo], {type: tipo});
+  const a = Object.assign(document.createElement('a'), {
+    href: URL.createObjectURL(blob), download: nome
+  });
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+}
+
+// ─── INIT
+window.addEventListener('DOMContentLoaded', () => {
+  /* __BACKUP_DATA__ */
+
+  // Se não veio dados embutidos (arquivo original sem backup), carrega do localStorage
+  if (!Object.keys(D.meses).length) {
+    carregarLocal();
+  }
+
+  initMeses();
+  const hoje = new Date();
+  const p = n => String(n).padStart(2,'0');
+  document.getElementById('gen-data').value = `${hoje.getFullYear()}-${p(hoje.getMonth()+1)}-${p(hoje.getDate())}`;
+  render();
+
+  // Auto-save no localStorage a cada vez que render() é chamado
+  // (veja chamadas a salvarLocal() nas funções addGeracao e saveConta)
+});
+</script>
+</body>
+</html>
