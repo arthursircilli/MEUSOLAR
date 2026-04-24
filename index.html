@@ -30,24 +30,78 @@
   --text2: #94A3B8;
   --text3: #475569;
   --sidebar-w: 220px;
+  --sidebar-collapsed: 60px;
+  --topbar-h: 54px;
   --r: 14px;
 }
 html, body { height: 100%; }
 body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); display: flex; overflow: hidden; }
 
-/* SIDEBAR */
-.sidebar {
-  width: var(--sidebar-w); min-height: 100vh;
-  background: var(--bg2); border-right: 1px solid var(--border);
-  display: flex; flex-direction: column; padding: 28px 16px;
-  flex-shrink: 0;
+/* ── TOPBAR (mobile only) ── */
+.topbar {
+  display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+  height: var(--topbar-h); background: var(--bg2); border-bottom: 1px solid var(--border);
+  padding: 0 16px; align-items: center; justify-content: space-between; gap: 12px;
 }
-.logo { display: flex; align-items: center; gap: 10px; padding: 0 8px; margin-bottom: 36px; }
-.logo-icon { width: 34px; height: 34px; background: var(--amber-dim); border: 1px solid rgba(245,158,11,0.3); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-.logo-text { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+.topbar-logo { display: flex; align-items: center; gap: 8px; }
+.topbar-logo .logo-icon { width: 28px; height: 28px; background: var(--amber-dim); border: 1px solid rgba(245,158,11,0.3); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+.topbar-logo .logo-text { font-size: 0.9rem; font-weight: 700; }
+.topbar-logo .logo-text span { color: var(--amber); }
+.btn-hamburger { background: transparent; border: 1px solid var(--border2); color: var(--text2); border-radius: 8px; padding: 6px 10px; font-size: 1.1rem; cursor: pointer; line-height: 1; transition: all 0.15s; }
+.btn-hamburger:hover { border-color: var(--amber); color: var(--amber); }
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+.topbar-month { font-size: 0.72rem; color: var(--amber); font-weight: 600; background: var(--amber-dim); border: 1px solid rgba(245,158,11,0.2); border-radius: 99px; padding: 3px 10px; }
+
+/* ── OVERLAY (mobile drawer) ── */
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 249; backdrop-filter: blur(3px); }
+.sidebar-overlay.show { display: block; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: var(--sidebar-w); min-height: 100vh; flex-shrink: 0;
+  background: var(--bg2); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; padding: 24px 14px;
+  transition: width 0.25s cubic-bezier(.4,0,.2,1);
+  overflow: hidden; position: relative;
+}
+/* collapse toggle button */
+.sidebar-toggle {
+  position: absolute; top: 24px; right: -12px; z-index: 10;
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--bg3); border: 1px solid var(--border2);
+  color: var(--text3); font-size: 11px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s; flex-shrink: 0;
+}
+.sidebar-toggle:hover { color: var(--amber); border-color: rgba(245,158,11,0.3); }
+
+/* collapsed state */
+.sidebar.collapsed { width: var(--sidebar-collapsed); padding: 24px 8px; }
+.sidebar.collapsed .nav-text,
+.sidebar.collapsed .logo-text,
+.sidebar.collapsed .nav-label,
+.sidebar.collapsed .sidebar-quick,
+.sidebar.collapsed .sidebar-foot { display: none; }
+.sidebar.collapsed .nav-item { justify-content: center; padding: 10px 0; }
+.sidebar.collapsed .logo { justify-content: center; padding: 0; margin-bottom: 28px; }
+.sidebar.collapsed .sidebar-toggle { right: -12px; }
+
+.logo { display: flex; align-items: center; gap: 10px; padding: 0 6px; margin-bottom: 20px; }
+.logo-icon { width: 34px; height: 34px; background: var(--amber-dim); border: 1px solid rgba(245,158,11,0.3); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.logo-text { font-size: 0.95rem; font-weight: 700; color: var(--text); white-space: nowrap; }
 .logo-text span { color: var(--amber); }
-.nav-label { font-size: 0.6rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); padding: 0 8px; margin: 20px 0 8px; }
-.nav-label:first-of-type { margin-top: 0; }
+
+/* quick controls (month + login) above nav */
+.sidebar-quick { margin-bottom: 16px; display: flex; flex-direction: column; gap: 8px; }
+.month-box { background: var(--bg3); border: 1px solid var(--border2); border-radius: 10px; padding: 10px 12px; }
+.month-box label { display: block; font-size: 0.6rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text3); margin-bottom: 5px; }
+.month-box select { background: transparent; border: none; color: var(--amber); font-family: 'Outfit', sans-serif; font-size: 0.875rem; font-weight: 600; cursor: pointer; outline: none; width: 100%; }
+.month-box option { background: var(--bg2); color: var(--text); }
+.btn-login { width: 100%; background: transparent; color: var(--text3); border: 1px solid var(--border2); border-radius: 10px; padding: 8px; font-family: 'Outfit', sans-serif; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.btn-login:hover { border-color: var(--amber); color: var(--amber); }
+body.is-owner .btn-login { color: var(--teal); border-color: rgba(45,212,191,0.3); }
+
+.nav-label { font-size: 0.6rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); padding: 0 6px; margin: 4px 0 6px; }
 .nav-item {
   display: flex; align-items: center; gap: 10px; padding: 9px 10px;
   border-radius: 10px; cursor: pointer; color: var(--text2); font-size: 0.875rem;
@@ -55,19 +109,14 @@ body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--te
 }
 .nav-item:hover { background: var(--bg3); color: var(--text); }
 .nav-item.active { background: var(--amber-dim); color: var(--amber); border-color: rgba(245,158,11,0.2); }
-.nav-icon { font-size: 15px; width: 18px; text-align: center; }
-.sidebar-foot { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border); }
-.month-box { background: var(--bg3); border: 1px solid var(--border2); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; }
-.month-box label { display: block; font-size: 0.6rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text3); margin-bottom: 5px; }
-.month-box select { background: transparent; border: none; color: var(--amber); font-family: 'Outfit', sans-serif; font-size: 0.875rem; font-weight: 600; cursor: pointer; outline: none; width: 100%; }
-.month-box option { background: var(--bg2); color: var(--text); }
-.btn-export { width: 100%; background: var(--amber); color: #000; border: none; border-radius: 10px; padding: 10px; font-family: 'Outfit', sans-serif; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 8px; }
-.btn-export:hover { background: var(--amber2); transform: translateY(-1px); }
-.btn-login { width: 100%; background: transparent; color: var(--text3); border: 1px solid var(--border2); border-radius: 10px; padding: 8px; font-family: 'Outfit', sans-serif; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 6px; }
-.btn-login:hover { border-color: var(--amber); color: var(--amber); }
-body.is-owner .btn-login { color: var(--teal); border-color: rgba(45,212,191,0.3); }
+.nav-icon { font-size: 15px; width: 18px; text-align: center; flex-shrink: 0; }
+.nav-text { white-space: nowrap; }
 
-/* MAIN */
+.sidebar-foot { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border); }
+.btn-export { width: 100%; background: var(--amber); color: #000; border: none; border-radius: 10px; padding: 10px; font-family: 'Outfit', sans-serif; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.btn-export:hover { background: var(--amber2); transform: translateY(-1px); }
+
+/* ── MAIN ── */
 .main { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 32px 28px; display: flex; flex-direction: column; gap: 24px; }
 .main::-webkit-scrollbar { width: 5px; }
 .main::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 99px; }
@@ -85,17 +134,12 @@ body.is-owner .btn-login { color: var(--teal); border-color: rgba(45,212,191,0.3
 .section { display: none; animation: fi 0.2s ease; }
 .section.active { display: flex; flex-direction: column; gap: 24px; }
 @keyframes fi { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
-
-/* SECTION LABEL */
 .sec-label { font-size: 0.62rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
 
 /* KPI GRID */
 .kpi-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
 .kpi-grid-6 { grid-template-columns: repeat(6,1fr); }
-.kpi {
-  background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r);
-  padding: 20px; position: relative; overflow: hidden; transition: border-color 0.2s, transform 0.2s;
-}
+.kpi { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); padding: 20px; position: relative; overflow: hidden; transition: border-color 0.2s, transform 0.2s; }
 .kpi:hover { border-color: var(--border2); transform: translateY(-2px); }
 .kpi-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 .kpi-lbl { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.5px; color: var(--text2); text-transform: uppercase; }
@@ -105,10 +149,7 @@ body.is-owner .btn-login { color: var(--teal); border-color: rgba(45,212,191,0.3
 .badge.b { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(96,165,250,0.2); }
 .badge.p { background: rgba(255,255,255,0.03); color: var(--text3); border: 1px dashed var(--border2); }
 .kpi-val { font-size: 1.9rem; font-weight: 800; letter-spacing: -1px; line-height: 1; }
-.kpi-val.a { color: var(--amber); }
-.kpi-val.t { color: var(--teal); }
-.kpi-val.b { color: var(--blue); }
-.kpi-val.w { color: var(--text); }
+.kpi-val.a { color: var(--amber); } .kpi-val.t { color: var(--teal); } .kpi-val.b { color: var(--blue); } .kpi-val.w { color: var(--text); }
 .kpi-unit { font-size: 0.85rem; font-weight: 500; color: var(--text2); margin-left: 3px; }
 .kpi-sub { font-size: 0.7rem; color: var(--text3); margin-top: 6px; }
 .kpi-sub b { color: var(--text2); }
@@ -148,9 +189,7 @@ body.is-owner .btn-login { color: var(--teal); border-color: rgba(45,212,191,0.3
 .eco-row:first-child { padding-top: 0; }
 .eco-lbl { font-size: 0.78rem; color: var(--text2); font-weight: 500; }
 .eco-v { font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; font-weight: 500; }
-.eco-v.a { color: var(--amber); }
-.eco-v.t { color: var(--teal); }
-.eco-v.m { color: var(--text3); }
+.eco-v.a { color: var(--amber); } .eco-v.t { color: var(--teal); } .eco-v.m { color: var(--text3); }
 .prog-wrap { margin-top: 16px; }
 .prog-hd { display: flex; justify-content: space-between; margin-bottom: 7px; }
 .prog-hd span { font-size: 0.7rem; color: var(--text2); font-weight: 500; }
@@ -184,11 +223,7 @@ td.t { color: var(--teal); font-family: 'JetBrains Mono', monospace; }
 .empty { text-align: center; padding: 40px; color: var(--text3); font-size: 0.8rem; }
 
 /* READONLY HINT */
-.readonly-hint {
-  display: none; background: var(--bg3); border: 1px dashed var(--border2);
-  border-radius: var(--r); padding: 20px; text-align: center;
-  color: var(--text3); font-size: 0.8rem;
-}
+.readonly-hint { display: none; background: var(--bg3); border: 1px dashed var(--border2); border-radius: var(--r); padding: 20px; text-align: center; color: var(--text3); font-size: 0.8rem; }
 .readonly-hint span { color: var(--text2); font-weight: 600; }
 body:not(.is-owner) .readonly-hint { display: block; }
 body:not(.is-owner) .owner-only { display: none !important; }
@@ -213,40 +248,75 @@ body:not(.is-owner) .owner-only { display: none !important; }
 .btn-modal-ok { flex: 2; background: var(--amber); color: #000; border: none; border-radius: 9px; padding: 10px; font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.85rem; cursor: pointer; }
 .btn-modal-ok:hover { background: var(--amber2); }
 
+/* ── RESPONSIVE ── */
 @media(max-width:900px) { .kpi-grid { grid-template-columns: repeat(2,1fr); } .kpi-grid-6 { grid-template-columns: repeat(3,1fr); } .row2 { grid-template-columns: 1fr; } }
 @media(max-width:600px) { .kpi-grid-6 { grid-template-columns: repeat(2,1fr); } }
-@media(max-width:640px) {
-  body { flex-direction: column; overflow: auto; }
-  .sidebar { width: 100%; min-height: auto; flex-direction: row; flex-wrap: wrap; padding: 12px; gap: 4px; }
-  .sidebar-foot { display: none; }
-  .logo { margin-bottom: 0; }
-  .nav-label { display: none; }
-  .nav-item { padding: 6px 10px; font-size: 0.78rem; }
-  .main { padding: 16px; }
+
+@media(max-width:700px) {
+  /* show topbar */
+  .topbar { display: flex; }
+  /* body layout */
+  body { flex-direction: row; overflow: hidden; padding-top: var(--topbar-h); }
+  /* sidebar becomes a fixed drawer */
+  .sidebar {
+    position: fixed; top: var(--topbar-h); left: 0; bottom: 0; z-index: 250;
+    width: 260px !important; min-height: auto;
+    transform: translateX(-100%);
+    transition: transform 0.25s cubic-bezier(.4,0,.2,1);
+    overflow-y: auto; padding: 20px 14px;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-toggle { display: none; }
+  .sidebar.collapsed { padding: 20px 14px; }
+  /* make sure quick controls show in drawer */
+  .sidebar-quick, .sidebar-foot { display: flex !important; flex-direction: column; }
+  /* main takes full width */
+  .main { width: 100%; padding: 16px; overflow-y: auto; }
   .kpi-grid { grid-template-columns: 1fr 1fr; }
 }
 </style>
 </head>
 <body>
 
-<aside class="sidebar">
+<!-- TOPBAR (mobile) -->
+<div class="topbar" id="topbar">
+  <button class="btn-hamburger" onclick="toggleSidebar()">☰</button>
+  <div class="topbar-logo">
+    <div class="logo-icon">☀️</div>
+    <div class="logo-text">Solar<span>IO</span></div>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-month" id="topbar-month"></span>
+  </div>
+</div>
+
+<!-- OVERLAY (mobile drawer backdrop) -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<aside class="sidebar" id="sidebar">
+  <button class="sidebar-toggle" id="sidebar-toggle" onclick="toggleSidebar()" title="Recolher menu">‹</button>
   <div class="logo">
     <div class="logo-icon">☀️</div>
     <div class="logo-text">Solar<span>IO</span></div>
   </div>
-  <div class="nav-label">Menu</div>
-  <div class="nav-item active" onclick="navTo('dashboard',this)"><span class="nav-icon">◈</span> Dashboard</div>
-  <div class="nav-item" onclick="navTo('geracao',this)"><span class="nav-icon">⚡</span> Geração</div>
-  <div class="nav-item" onclick="navTo('conta',this)"><span class="nav-icon">📄</span> Conta</div>
-  <div class="nav-item" onclick="navTo('historico',this)"><span class="nav-icon">📅</span> Histórico</div>
 
-  <div class="sidebar-foot">
+  <!-- Mês ativo + Login acima do menu -->
+  <div class="sidebar-quick">
     <div class="month-box">
       <label>Mês ativo</label>
-      <select id="month-select" onchange="render()"></select>
+      <select id="month-select" onchange="onMonthChange()"></select>
     </div>
-    <button class="btn-export owner-only" onclick="exportar()">⬇ Salvar arquivo</button>
     <button class="btn-login" id="btn-login" onclick="toggleLogin()">🔒 Admin</button>
+  </div>
+
+  <div class="nav-label">Menu</div>
+  <div class="nav-item active" onclick="navTo('dashboard',this)"><span class="nav-icon">◈</span><span class="nav-text"> Dashboard</span></div>
+  <div class="nav-item" onclick="navTo('geracao',this)"><span class="nav-icon">⚡</span><span class="nav-text"> Geração</span></div>
+  <div class="nav-item" onclick="navTo('conta',this)"><span class="nav-icon">📄</span><span class="nav-text"> Conta</span></div>
+  <div class="nav-item" onclick="navTo('historico',this)"><span class="nav-icon">📅</span><span class="nav-text"> Histórico</span></div>
+
+  <div class="sidebar-foot">
+    <button class="btn-export owner-only" onclick="exportar()">⬇ Salvar arquivo</button>
   </div>
 </aside>
 
@@ -368,41 +438,98 @@ const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
 
 let D = { meses: {} };
 let isOwner = false;
+let sidebarCollapsed = false;
 
-function key() { return document.getElementById('month-select').value; }
-function mes(k) {
-  if (!k) k = key();
-  if (!D.meses[k]) D.meses[k] = { geracao: [], tarifa: 0.90, consumoKwh: 0, contaValor: 0 };
-  return D.meses[k];
+// ─── SIDEBAR
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  const toggle = document.getElementById('sidebar-toggle');
+  const isMobile = window.innerWidth <= 700;
+  if (isMobile) {
+    const open = sidebar.classList.toggle('open');
+    overlay.classList.toggle('show', open);
+  } else {
+    sidebarCollapsed = !sidebarCollapsed;
+    sidebar.classList.toggle('collapsed', sidebarCollapsed);
+    toggle.textContent = sidebarCollapsed ? '›' : '‹';
+  }
 }
 
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('show');
+}
+
+// fecha sidebar ao navegar no mobile
+function navTo(tab, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('sec-' + tab).classList.add('active');
+  el.classList.add('active');
+  if (window.innerWidth <= 700) closeSidebar();
+  render();
+}
+
+function onMonthChange() {
+  updateTopbarMonth();
+  render();
+}
+
+function updateTopbarMonth() {
+  const sel = document.getElementById('month-select');
+  const opt = sel.options[sel.selectedIndex];
+  const el = document.getElementById('topbar-month');
+  if (el && opt) el.textContent = opt.textContent;
+}
+
+// ─── AUTH
 function setOwner(session) {
   isOwner = !!session;
   document.body.classList.toggle('is-owner', isOwner);
   document.getElementById('btn-login').textContent = isOwner ? '🔓 Sair' : '🔒 Admin';
 }
 
-function initMeses() {
-  const sel = document.getElementById('month-select');
-  sel.innerHTML = '';
-  const hoje = new Date();
-  const nm = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  for (let i = -5; i <= 1; i++) {
-    const d = new Date(hoje.getFullYear(), hoje.getMonth() + i, 1);
-    const k = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-    const o = document.createElement('option');
-    o.value = k; o.textContent = `${nm[d.getMonth()]} ${d.getFullYear()}`;
-    if (i === 0) o.selected = true;
-    sel.appendChild(o);
-  }
+function toggleLogin() {
+  if (isOwner) { logout(); } else { abrirModal(); }
 }
 
-function navTo(tab, el) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('sec-' + tab).classList.add('active');
-  el.classList.add('active');
-  render();
+function abrirModal() {
+  document.getElementById('modal-login').classList.add('show');
+  setTimeout(() => document.getElementById('login-email').focus(), 100);
+}
+
+function fecharModal() { document.getElementById('modal-login').classList.remove('show'); }
+function fecharModalFora(e) { if (e.target === document.getElementById('modal-login')) fecharModal(); }
+
+async function login() {
+  const email = document.getElementById('login-email').value.trim();
+  const senha = document.getElementById('login-senha').value;
+  if (!email || !senha) { toast('Preencha e-mail e senha.', 'err'); return; }
+  const btn = document.querySelector('.btn-modal-ok');
+  btn.textContent = 'Entrando...'; btn.disabled = true;
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: senha });
+  btn.textContent = 'Entrar'; btn.disabled = false;
+  if (error) { toast('Login inválido. Verifique e-mail e senha.', 'err'); return; }
+  setOwner(data.session);
+  fecharModal();
+  document.getElementById('login-email').value = '';
+  document.getElementById('login-senha').value = '';
+  toast('✓ Logado como admin!', 'ok');
+}
+
+async function logout() {
+  await sb.auth.signOut();
+  setOwner(null);
+  toast('Sessão encerrada.', 'ok');
+}
+
+// ─── DADOS
+function key() { return document.getElementById('month-select').value; }
+function mes(k) {
+  if (!k) k = key();
+  if (!D.meses[k]) D.meses[k] = { geracao: [], tarifa: 0.90, consumoKwh: 0, contaValor: 0 };
+  return D.meses[k];
 }
 
 async function addGeracao() {
@@ -439,24 +566,25 @@ async function saveConta() {
 }
 
 async function salvar() {
-  const k = key();
-  const m = mes(k);
+  const k = key(); const m = mes(k);
   const { error } = await sb.from('solar_data').upsert({
-    mes: k,
-    geracao: m.geracao,
-    tarifa: m.tarifa,
-    consumo_kwh: m.consumoKwh,
-    conta_valor: m.contaValor,
+    mes: k, geracao: m.geracao, tarifa: m.tarifa,
+    consumo_kwh: m.consumoKwh, conta_valor: m.contaValor,
     updated_at: new Date().toISOString()
   }, { onConflict: 'mes' });
   if (error) { toast('Erro ao salvar: ' + error.message, 'err'); return false; }
-  salvarLocal();
-  return true;
+  salvarLocal(); return true;
 }
 
 async function carregar() {
   const { data, error } = await sb.from('solar_data').select('*');
-  if (error || !data) { carregarLocal(); return; }
+  if (error || !data || data.length === 0) {
+    // Supabase vazio — mantém dados locais e oferece migração ao owner
+    carregarLocal();
+    render();
+    if (isOwner && Object.keys(D.meses).length > 0) mostrarBtnMigrar();
+    return;
+  }
   D = { meses: {} };
   for (const row of data) {
     D.meses[row.mes] = {
@@ -466,64 +594,46 @@ async function carregar() {
       contaValor: parseFloat(row.conta_valor) || 0
     };
   }
-  salvarLocal();
-  render();
+  salvarLocal(); render();
 }
 
-function salvarLocal() {
-  try { localStorage.setItem('solar_io_v1', JSON.stringify(D)); } catch(e) {}
+function mostrarBtnMigrar() {
+  if (document.getElementById('btn-migrar')) return;
+  const btn = document.createElement('button');
+  btn.id = 'btn-migrar';
+  btn.textContent = '☁ Enviar dados locais para a nuvem';
+  btn.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--amber);color:#000;border:none;border-radius:12px;padding:12px 20px;font-family:Outfit,sans-serif;font-weight:700;font-size:0.85rem;cursor:pointer;z-index:500;box-shadow:0 4px 20px rgba(245,158,11,0.4)';
+  btn.onclick = migrarParaNuvem;
+  document.body.appendChild(btn);
 }
 
+async function migrarParaNuvem() {
+  const meses = Object.keys(D.meses);
+  if (meses.length === 0) return;
+  toast('Enviando dados...', 'ok');
+  const rows = meses.map(k => ({
+    mes: k,
+    geracao: D.meses[k].geracao,
+    tarifa: D.meses[k].tarifa,
+    consumo_kwh: D.meses[k].consumoKwh,
+    conta_valor: D.meses[k].contaValor,
+    updated_at: new Date().toISOString()
+  }));
+  const { error } = await sb.from('solar_data').upsert(rows, { onConflict: 'mes' });
+  if (error) { toast('Erro ao migrar: ' + error.message, 'err'); return; }
+  document.getElementById('btn-migrar')?.remove();
+  toast(`✓ ${meses.length} mês(es) enviados para a nuvem!`, 'ok');
+}
+
+function salvarLocal() { try { localStorage.setItem('solar_io_v1', JSON.stringify(D)); } catch(e) {} }
 function carregarLocal() {
   try {
     const raw = localStorage.getItem('solar_io_v1');
     if (!raw) return false;
     const parsed = JSON.parse(raw);
-    if (parsed && parsed.meses && Object.keys(parsed.meses).length > 0) {
-      D = parsed; return true;
-    }
+    if (parsed && parsed.meses && Object.keys(parsed.meses).length > 0) { D = parsed; return true; }
   } catch(e) {}
   return false;
-}
-
-// ─── AUTH
-function toggleLogin() {
-  if (isOwner) { logout(); } else { abrirModal(); }
-}
-
-function abrirModal() {
-  document.getElementById('modal-login').classList.add('show');
-  setTimeout(() => document.getElementById('login-email').focus(), 100);
-}
-
-function fecharModal() {
-  document.getElementById('modal-login').classList.remove('show');
-}
-
-function fecharModalFora(e) {
-  if (e.target === document.getElementById('modal-login')) fecharModal();
-}
-
-async function login() {
-  const email = document.getElementById('login-email').value.trim();
-  const senha = document.getElementById('login-senha').value;
-  if (!email || !senha) { toast('Preencha e-mail e senha.', 'err'); return; }
-  const btn = document.querySelector('.btn-modal-ok');
-  btn.textContent = 'Entrando...'; btn.disabled = true;
-  const { data, error } = await sb.auth.signInWithPassword({ email, password: senha });
-  btn.textContent = 'Entrar'; btn.disabled = false;
-  if (error) { toast('Login inválido. Verifique e-mail e senha.', 'err'); return; }
-  setOwner(data.session);
-  fecharModal();
-  document.getElementById('login-email').value = '';
-  document.getElementById('login-senha').value = '';
-  toast('✓ Logado como admin!', 'ok');
-}
-
-async function logout() {
-  await sb.auth.signOut();
-  setOwner(null);
-  toast('Sessão encerrada.', 'ok');
 }
 
 // ─── FORMATAÇÃO
@@ -545,11 +655,27 @@ function toast(msg, tipo) {
   setTimeout(() => el.className = 'toast', 3000);
 }
 
+function initMeses() {
+  const sel = document.getElementById('month-select');
+  sel.innerHTML = '';
+  const hoje = new Date();
+  const nm = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  for (let i = -5; i <= 1; i++) {
+    const d = new Date(hoje.getFullYear(), hoje.getMonth() + i, 1);
+    const k = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const o = document.createElement('option');
+    o.value = k; o.textContent = `${nm[d.getMonth()]} ${d.getFullYear()}`;
+    if (i === 0) o.selected = true;
+    sel.appendChild(o);
+  }
+  updateTopbarMonth();
+}
+
 // ─── RENDER
 function render() {
   const k = key(); const m = mes(k);
   const tarifa = m.tarifa || 0.90;
-  const td = diasMes(k); const da = diaAtual(k);
+  const td = diasMes(k);
   const tg = m.geracao.reduce((s,g) => s+g.kwh, 0);
   const nd = m.geracao.length;
   const media = nd > 0 ? tg / nd : 0;
@@ -684,20 +810,14 @@ function renderChart(k, m, td, media) {
 
 function exportar() {
   salvarLocal();
-  const dadosJSON = JSON.stringify(D);
   baixar(JSON.stringify(D, null, 2), 'solar_dados.json', 'application/json');
   toast('✓ Dados exportados como JSON (backup).', 'ok');
 }
 
 function baixar(conteudo, nome, tipo) {
   const blob = new Blob([conteudo], {type: tipo});
-  const a = Object.assign(document.createElement('a'), {
-    href: URL.createObjectURL(blob), download: nome
-  });
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(a.href);
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: nome });
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(a.href);
 }
 
 // ─── INIT
@@ -706,19 +826,15 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   initMeses();
   const hoje = new Date();
-  const p = n => String(n).padStart(2,'0');
+  const p = v => String(v).padStart(2,'0');
   document.getElementById('gen-data').value = `${hoje.getFullYear()}-${p(hoje.getMonth()+1)}-${p(hoje.getDate())}`;
 
-  // Carrega cache local imediatamente pra não ficar tela em branco
-  carregarLocal();
-  render();
+  carregarLocal(); render();
 
-  // Verifica sessão
   const { data: { session } } = await sb.auth.getSession();
   setOwner(session);
   sb.auth.onAuthStateChange((_e, s) => setOwner(s));
 
-  // Carrega dados do Supabase (substitui o cache)
   await carregar();
 });
 </script>
